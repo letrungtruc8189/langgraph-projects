@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Content Extraction - VietStock Article</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .result {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .stats {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .language-detection {
+            background: #d1ecf1;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Content Extraction</h1>
+    <p>Testing content extraction from VietStock article about Trump's tax exemption orders</p>
+
+    <div class="test-section">
+        <h2>📄 Article Information</h2>
+        <p><strong>URL:</strong> https://vietstock.vn/2025/09/tong-thong-trump-ky-sac-lenh-mien-thue-cho-45-nhom-hang-hoa-775-1350065.htm</p>
+        <p><strong>Title:</strong> Tổng thống Trump ký sắc lệnh miễn thuế cho 45 nhóm hàng hóa</p>
+        <p><strong>Source:</strong> VietStock - Vietnamese Financial News</p>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 Content Extraction Test</h2>
+        <button onclick="testContentExtraction()">Extract Content</button>
+        <button onclick="testLanguageDetection()">Test Language Detection</button>
+        <button onclick="simulateAISummary()">Simulate AI Summary</button>
+        
+        <div id="extractionResult"></div>
+        <div id="languageResult"></div>
+        <div id="summaryResult"></div>
+    </div>
+
+    <script>
+        // Simulate the content from the VietStock article
+        const articleContent = `
+Tổng thống Trump ký sắc lệnh miễn thuế cho 45 nhóm hàng hóa
+
+Chủ Nhật, 07/09/2025
+
+Tổng thống Donald Trump đã ký sắc lệnh miễn thuế nhập khẩu cho 45 nhóm hàng hóa quan trọng nhằm giảm áp lực lạm phát và hỗ trợ nền kinh tế Mỹ phục hồi sau đại dịch.
+
+Theo thông tin từ Nhà Trắng, sắc lệnh này sẽ có hiệu lực từ ngày 15/09/2025 và áp dụng trong thời gian 18 tháng. Các nhóm hàng hóa được miễn thuế bao gồm:
+
+- Nguyên liệu thô cho sản xuất
+- Thiết bị y tế và dược phẩm
+- Công nghệ thông tin và viễn thông
+- Năng lượng tái tạo
+- Nông sản thực phẩm thiết yếu
+
+Quyết định này được đưa ra trong bối cảnh lạm phát tại Mỹ vẫn ở mức cao, khoảng 4.2% so với cùng kỳ năm trước. Các chuyên gia kinh tế dự báo việc miễn thuế có thể giúp giảm 0.5-0.8% chỉ số giá tiêu dùng trong 6 tháng tới.
+
+Thị trường chứng khoán phản ứng tích cực với thông tin này. Chỉ số Dow Jones tăng 1.2%, S&P 500 tăng 0.9% trong phiên giao dịch cuối tuần.
+
+Tuy nhiên, một số nhà phân tích cảnh báo rằng việc miễn thuế có thể tác động tiêu cực đến ngân sách liên bang, với ước tính thiệt hại khoảng 15-20 tỷ USD trong năm đầu tiên.
+
+Chính sách này cũng được kỳ vọng sẽ cải thiện quan hệ thương mại với các đối tác, đặc biệt là các nước châu Á và châu Âu.
+        `.trim();
+
+        function testContentExtraction() {
+            const result = document.getElementById('extractionResult');
+            
+            // Simulate our content extraction logic
+            const extractedContent = {
+                title: "Tổng thống Trump ký sắc lệnh miễn thuế cho 45 nhóm hàng hóa",
+                url: "https://vietstock.vn/2025/09/tong-thong-trump-ky-sac-lenh-mien-thue-cho-45-nhom-hang-hoa-775-1350065.htm",
+                content: articleContent,
+                wordCount: articleContent.split(/\s+/).length,
+                readingTime: Math.ceil(articleContent.split(/\s+/).length / 200)
+            };
+
+            result.innerHTML = `
+                <h3>✅ Extraction Results</h3>
+                <div class="stats">
+                    <strong>Word Count:</strong> ${extractedContent.wordCount} words<br>
+                    <strong>Reading Time:</strong> ${extractedContent.readingTime} minutes<br>
+                    <strong>Content Length:</strong> ${extractedContent.content.length} characters
+                </div>
+                <div class="result">
+Title: ${extractedContent.title}
+
+Content Preview (first 500 chars):
+${extractedContent.content.substring(0, 500)}...
+                </div>
+            `;
+        }
+
+        function testLanguageDetection() {
+            const result = document.getElementById('languageResult');
+            
+            // Simulate our language detection logic
+            const words = articleContent.toLowerCase().split(/\s+/);
+            const englishWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'];
+            const vietnameseWords = ['của', 'và', 'trong', 'như', 'cho', 'với', 'thế', 'nên', 'cũng', 'vào', 'có', 'là', 'được', 'sẽ', 'này', 'theo', 'từ', 'các', 'một', 'về'];
+            
+            const englishCount = englishWords.reduce((count, word) => 
+                count + words.filter(w => w === word).length, 0);
+            const vietnameseCount = vietnameseWords.reduce((count, word) => 
+                count + words.filter(w => w === word).length, 0);
+            
+            const detectedLanguage = vietnameseCount > englishCount ? 'vi' : 'en';
+            
+            result.innerHTML = `
+                <h3>🌐 Language Detection Results</h3>
+                <div class="language-detection">
+                    <strong>Detected Language:</strong> ${detectedLanguage === 'vi' ? 'Vietnamese (vi)' : 'English (en)'}<br>
+                    <strong>English word matches:</strong> ${englishCount}<br>
+                    <strong>Vietnamese word matches:</strong> ${vietnameseCount}<br>
+                    <strong>Confidence:</strong> ${vietnameseCount > englishCount ? 'High (Vietnamese content detected)' : 'Low (English content detected)'}
+                </div>
+            `;
+        }
+
+        function simulateAISummary() {
+            const result = document.getElementById('summaryResult');
+            
+            // Simulate what our AI would return for this Vietnamese article
+            const mockSummary = {
+                tldr: "Tổng thống Trump đã ký sắc lệnh miễn thuế nhập khẩu cho 45 nhóm hàng hóa quan trọng từ ngày 15/09/2025, nhằm giảm lạm phát và hỗ trợ kinh tế Mỹ. Chính sách này dự kiến giảm 0.5-0.8% chỉ số giá tiêu dùng nhưng có thể gây thiệt hại 15-20 tỷ USD cho ngân sách liên bang.",
+                bullets: [
+                    "Sắc lệnh miễn thuế cho 45 nhóm hàng hóa có hiệu lực từ 15/09/2025",
+                    "Thời gian áp dụng: 18 tháng",
+                    "Bao gồm nguyên liệu thô, thiết bị y tế, công nghệ, năng lượng tái tạo, nông sản",
+                    "Lạm phát Mỹ hiện tại: 4.2% so với cùng kỳ năm trước",
+                    "Dự báo giảm 0.5-0.8% chỉ số giá tiêu dùng trong 6 tháng",
+                    "Dow Jones tăng 1.2%, S&P 500 tăng 0.9%",
+                    "Thiệt hại ngân sách ước tính: 15-20 tỷ USD năm đầu"
+                ],
+                actions: [
+                    "Theo dõi tác động của chính sách lên thị trường chứng khoán",
+                    "Đánh giá ảnh hưởng đến các doanh nghiệp nhập khẩu",
+                    "Quan sát phản ứng của các đối tác thương mại",
+                    "Theo dõi chỉ số lạm phát trong 6 tháng tới"
+                ],
+                qa: [
+                    {
+                        question: "Khi nào sắc lệnh miễn thuế có hiệu lực?",
+                        answer: "Từ ngày 15/09/2025 và áp dụng trong 18 tháng"
+                    },
+                    {
+                        question: "Những nhóm hàng hóa nào được miễn thuế?",
+                        answer: "Nguyên liệu thô, thiết bị y tế, công nghệ thông tin, năng lượng tái tạo, nông sản thực phẩm"
+                    },
+                    {
+                        question: "Tác động dự kiến lên lạm phát là gì?",
+                        answer: "Giảm 0.5-0.8% chỉ số giá tiêu dùng trong 6 tháng tới"
+                    }
+                ],
+                language: "vi",
+                confidence: 0.95
+            };
+
+            result.innerHTML = `
+                <h3>🤖 Simulated AI Summary</h3>
+                <div class="result">
+<strong>TL;DR:</strong>
+${mockSummary.tldr}
+
+<strong>Key Points:</strong>
+${mockSummary.bullets.map(bullet => `• ${bullet}`).join('\n')}
+
+<strong>Action Items:</strong>
+${mockSummary.actions.map(action => `- [ ] ${action}`).join('\n')}
+
+<strong>Q&A:</strong>
+${mockSummary.qa.map(qa => `Q: ${qa.question}\nA: ${qa.answer}`).join('\n\n')}
+
+<strong>Language:</strong> ${mockSummary.language}
+<strong>Confidence:</strong> ${mockSummary.confidence}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

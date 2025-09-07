@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FlashTL;DR</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <h1>⚡ FlashTL;DR</h1>
+      <div class="status-indicator" id="status"></div>
+    </header>
+    
+    <main class="popup-main">
+      <div class="controls">
+        <div class="control-group">
+          <label for="tone">Tone:</label>
+          <select id="tone">
+            <option value="neutral">Neutral</option>
+            <option value="friendly">Friendly</option>
+            <option value="professional">Professional</option>
+          </select>
+        </div>
+        
+        <div class="control-group">
+          <label for="length">Length:</label>
+          <select id="length">
+            <option value="short">Short</option>
+            <option value="medium">Medium</option>
+            <option value="detailed">Detailed</option>
+          </select>
+        </div>
+      </div>
+      
+      <button id="summarizeBtn" class="summarize-btn">
+        <span class="btn-text">📄 Summarize Page</span>
+        <span class="btn-loader" style="display: none;">⏳</span>
+      </button>
+      
+      <div class="usage-info" id="usageInfo">
+        <span class="usage-text">Summaries today: <span id="usageCount">0</span>/10</span>
+        <a href="#" id="upgradeLink" class="upgrade-link">Upgrade to Pro</a>
+      </div>
+    </main>
+    
+    <footer class="popup-footer">
+      <button id="optionsBtn" class="options-btn">⚙️ Settings</button>
+      <button id="historyBtn" class="history-btn">📚 History</button>
+    </footer>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
