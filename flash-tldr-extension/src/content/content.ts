@@ -166,9 +166,10 @@ class ContentScript {
     overlay.innerHTML = `
       <div class="overlay-content">
         <div class="overlay-header">
-          <h2>⚡ ${content.title}</h2>
+          <h2>${this.getContentTypeIcon(content)} ${content.title}</h2>
           <button class="close-btn" onclick="this.closest('#flash-tldr-overlay').remove()">×</button>
         </div>
+        ${this.getContentMetadata(content)}
         
         <div class="overlay-body">
           <div class="section">
@@ -483,6 +484,84 @@ ${summary.qa.map(qa => `**Q:** ${qa.question}\n**A:** ${qa.answer}`).join('\n\n'
         errorDiv.remove();
       }
     }, 5000);
+  }
+
+  /**
+   * Gets the appropriate icon for the content type
+   */
+  private getContentTypeIcon(content: any): string {
+    if (this.isPDFContent(content)) {
+      return '📄'; // PDF icon
+    }
+    return '⚡'; // Default web page icon
+  }
+
+  /**
+   * Generates content metadata display
+   */
+  private getContentMetadata(content: any): string {
+    if (this.isPDFContent(content)) {
+      return `
+        <div class="content-metadata">
+          <div class="metadata-item">
+            <span class="metadata-label">📄 PDF Document</span>
+            <span class="metadata-value">${content.wordCount} words • ${content.readingTime} min read</span>
+          </div>
+          ${content.language !== 'en' ? `
+          <div class="metadata-item">
+            <span class="metadata-label">🌍 Language</span>
+            <span class="metadata-value">${this.getLanguageName(content.language)}</span>
+          </div>
+          ` : ''}
+        </div>
+      `;
+    }
+    
+    // Regular web page metadata
+    return `
+      <div class="content-metadata">
+        <div class="metadata-item">
+          <span class="metadata-label">🌐 Web Page</span>
+          <span class="metadata-value">${content.wordCount} words • ${content.readingTime} min read</span>
+        </div>
+        ${content.language !== 'en' ? `
+        <div class="metadata-item">
+          <span class="metadata-label">🌍 Language</span>
+          <span class="metadata-value">${this.getLanguageName(content.language)}</span>
+        </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  /**
+   * Checks if content is from a PDF
+   */
+  private isPDFContent(content: any): boolean {
+    return content.url && content.url.toLowerCase().includes('.pdf');
+  }
+
+  /**
+   * Gets human-readable language name
+   */
+  private getLanguageName(langCode: string): string {
+    const languageNames: { [key: string]: string } = {
+      'en': 'English',
+      'vi': 'Vietnamese',
+      'zh': 'Chinese',
+      'ja': 'Japanese',
+      'ko': 'Korean',
+      'fr': 'French',
+      'de': 'German',
+      'es': 'Spanish',
+      'pt': 'Portuguese',
+      'ru': 'Russian',
+      'ar': 'Arabic',
+      'hi': 'Hindi',
+      'th': 'Thai'
+    };
+    
+    return languageNames[langCode] || langCode.toUpperCase();
   }
   
 }

@@ -6,7 +6,12 @@ export class ContentExtractorSimple {
     const url = window.location.href;
     const title = document.title;
     
-    // Apply Crawl4AI's multi-strategy approach
+    // Check if this is a PDF document
+    if (this.isPDFDocument()) {
+      return await this.extractPDFContent();
+    }
+    
+    // Apply Crawl4AI's multi-strategy approach for HTML content
     const content = this.extractFitMarkdown();
     const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
     
@@ -506,5 +511,276 @@ export class ContentExtractorSimple {
 
     const detectedLang = Object.keys(scores).find(lang => scores[lang as keyof typeof scores] === maxScore);
     return detectedLang || null;
+  }
+
+  // ===== PDF EXTRACTION METHODS =====
+
+  /**
+   * Detects if the current page is displaying a PDF document
+   */
+  private static isPDFDocument(): boolean {
+    const url = window.location.href.toLowerCase();
+    
+    // Check URL for PDF extension
+    if (url.includes('.pdf')) {
+      return true;
+    }
+    
+    // Check for Chrome's built-in PDF viewer elements
+    if (document.querySelector('embed[type="application/pdf"]')) {
+      return true;
+    }
+    
+    // Check for PDF.js viewer elements
+    if (document.querySelector('#viewer.pdfViewer') || 
+        document.querySelector('.page[data-page-number]') ||
+        document.querySelector('#viewerContainer')) {
+      return true;
+    }
+    
+    // Check document title for PDF indicators
+    if (document.title.toLowerCase().includes('.pdf') ||
+        document.title.includes('PDF')) {
+      return true;
+    }
+    
+    // Check for PDF viewer specific classes
+    if (document.querySelector('.textLayer') && 
+        document.querySelector('.canvasWrapper')) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
+   * Extracts content from PDF documents
+   */
+  private static async extractPDFContent(): Promise<ExtractedContent> {
+    try {
+      const url = window.location.href;
+      const title = this.extractPDFTitle();
+      
+      // Extract text content from PDF
+      const content = await this.extractPDFText();
+      
+      if (content.length < 50) {
+        throw new Error('Unable to extract sufficient text from this PDF. The PDF might be image-based, protected, or still loading.');
+      }
+      
+      const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+      const language = this.detectLanguage(content, title);
+      
+      return {
+        title,
+        url,
+        content: content.trim(),
+        wordCount,
+        readingTime: Math.ceil(wordCount / 200),
+        language
+      };
+      
+    } catch (error) {
+      console.error('[ContentExtractor] PDF extraction failed:', error);
+      throw new Error(`PDF extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Extracts the PDF title from various sources
+   */
+  private static extractPDFTitle(): string {
+    // Try to get title from document title
+    let title = document.title;
+    
+    // Clean up common PDF viewer title patterns
+    title = title
+      .replace(/\.pdf.*$/i, '') // Remove .pdf extension and anything after
+      .replace(/\s*-\s*(Google Chrome|Mozilla Firefox|Microsoft Edge).*$/i, '') // Remove browser name
+      .replace(/\s*\|\s*.*$/i, '') // Remove anything after pipe
+      .trim();
+    
+    // If title is empty or generic, try to extract from URL
+    if (!title || title.length < 3 || title.toLowerCase().includes('untitled')) {
+      const urlParts = window.location.pathname.split('/');
+      const filename = urlParts[urlParts.length - 1];
+      if (filename && filename.includes('.')) {
+        title = decodeURIComponent(filename).replace(/\.[^.]*$/, ''); // Remove extension
+      }
+    }
+    
+    // Final fallback
+    if (!title || title.length < 3) {
+      title = 'PDF Document';
+    }
+    
+    return title;
+  }
+
+  /**
+   * Extracts text content from PDF using multiple strategies
+   */
+  private static async extractPDFText(): Promise<string> {
+    let extractedText = '';
+    
+    // Strategy 1: Extract from Chrome's PDF viewer text layers
+    extractedText = this.extractFromPDFTextLayers();
+    
+    if (extractedText.length > 100) {
+      return this.cleanPDFText(extractedText);
+    }
+    
+    // Strategy 2: Extract from PDF.js text layers (if available)
+    extractedText = this.extractFromPDFJSTextLayers();
+    
+    if (extractedText.length > 100) {
+      return this.cleanPDFText(extractedText);
+    }
+    
+    // Strategy 3: Wait for content to load and try again
+    await this.waitForPDFContent();
+    extractedText = this.extractFromPDFTextLayers() || this.extractFromPDFJSTextLayers();
+    
+    if (extractedText.length > 100) {
+      return this.cleanPDFText(extractedText);
+    }
+    
+    // Strategy 4: Fallback to visible text extraction
+    extractedText = this.extractVisiblePDFText();
+    
+    return this.cleanPDFText(extractedText);
+  }
+
+  /**
+   * Extracts text from Chrome's built-in PDF viewer text layers
+   */
+  private static extractFromPDFTextLayers(): string {
+    const textLayers = document.querySelectorAll('.textLayer');
+    let fullText = '';
+    
+    textLayers.forEach((layer, pageIndex) => {
+      const spans = layer.querySelectorAll('span');
+      let pageText = '';
+      
+      spans.forEach(span => {
+        const text = span.textContent || '';
+        if (text.trim()) {
+          pageText += text + ' ';
+        }
+      });
+      
+      if (pageText.trim()) {
+        fullText += pageText.trim() + '\n\n';
+      }
+    });
+    
+    return fullText;
+  }
+
+  /**
+   * Extracts text from PDF.js viewer text layers
+   */
+  private static extractFromPDFJSTextLayers(): string {
+    // Look for PDF.js specific selectors
+    const pages = document.querySelectorAll('.page[data-page-number]');
+    let fullText = '';
+    
+    pages.forEach((page, pageIndex) => {
+      const textLayer = page.querySelector('.textLayer');
+      if (textLayer) {
+        const spans = textLayer.querySelectorAll('span');
+        let pageText = '';
+        
+        spans.forEach(span => {
+          const text = span.textContent || '';
+          if (text.trim()) {
+            pageText += text + ' ';
+          }
+        });
+        
+        if (pageText.trim()) {
+          fullText += pageText.trim() + '\n\n';
+        }
+      }
+    });
+    
+    return fullText;
+  }
+
+  /**
+   * Waits for PDF content to load
+   */
+  private static async waitForPDFContent(maxWaitTime: number = 3000): Promise<void> {
+    const startTime = Date.now();
+    
+    return new Promise((resolve) => {
+      const checkForContent = () => {
+        const hasTextLayers = document.querySelectorAll('.textLayer').length > 0;
+        const hasPages = document.querySelectorAll('.page[data-page-number]').length > 0;
+        const timeElapsed = Date.now() - startTime;
+        
+        if (hasTextLayers || hasPages || timeElapsed > maxWaitTime) {
+          resolve();
+        } else {
+          setTimeout(checkForContent, 100);
+        }
+      };
+      
+      checkForContent();
+    });
+  }
+
+  /**
+   * Extracts visible text as fallback method
+   */
+  private static extractVisiblePDFText(): string {
+    // Try to extract from any visible text elements
+    const contentSelectors = [
+      '#viewer',
+      '#viewerContainer', 
+      '.pdfViewer',
+      'embed[type="application/pdf"]',
+      'object[type="application/pdf"]'
+    ];
+    
+    for (const selector of contentSelectors) {
+      const element = document.querySelector(selector);
+      if (element) {
+        const text = element.textContent || '';
+        if (text.length > 100) {
+          return text;
+        }
+      }
+    }
+    
+    // Final fallback - get all visible text
+    const bodyText = document.body.textContent || '';
+    return bodyText;
+  }
+
+  /**
+   * Cleans and normalizes extracted PDF text
+   */
+  private static cleanPDFText(text: string): string {
+    if (!text) return '';
+    
+    return text
+      // Normalize whitespace
+      .replace(/\s+/g, ' ')
+      // Remove excessive line breaks
+      .replace(/\n\s*\n\s*\n/g, '\n\n')
+      // Remove page numbers and headers/footers (common patterns)
+      .replace(/^\s*\d+\s*$/gm, '') // Standalone page numbers
+      .replace(/^Page \d+ of \d+$/gm, '') // "Page X of Y" patterns
+      // Remove repeated patterns that might be headers/footers
+      .replace(/(.{1,50})\n\1\n\1/g, '$1\n') // Remove if same line appears 3+ times
+      // Clean up spacing
+      .replace(/^\s+|\s+$/g, '') // Trim start and end
+      .replace(/\t/g, ' ') // Tabs to spaces
+      .replace(/\u00A0/g, ' ') // Non-breaking spaces
+      .replace(/[\u2000-\u200B]/g, ' ') // Various Unicode spaces
+      .replace(/\u00AD/g, '') // Soft hyphens
+      .replace(/\uFEFF/g, '') // Zero-width no-break space
+      .trim();
   }
 }

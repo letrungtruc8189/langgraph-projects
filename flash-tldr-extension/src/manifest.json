@@ -10,7 +10,8 @@
   ],
   "host_permissions": [
     "https://*/*",
-    "http://*/*"
+    "http://*/*",
+    "file:///*.pdf"
   ],
   "background": {
     "service_worker": "background.js"
@@ -21,7 +22,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*/*", "http://*/*"],
+      "matches": ["https://*/*", "http://*/*", "file:///*.pdf"],
       "js": ["content.js"],
       "css": ["content.css"],
       "run_at": "document_idle"

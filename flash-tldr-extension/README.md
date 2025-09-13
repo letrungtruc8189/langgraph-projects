@@ -5,7 +5,8 @@ A Chrome/Edge extension that provides instant AI-powered content summaries with 
 ## Features
 
 - ⚡ **One-click summarization** - Summarize any webpage instantly
-- 📄 **Three focused formats** - TL;DR, bullet points, and action items
+- 📄 **PDF Support** - Summarize PDF documents opened in browser
+- 📝 **Three focused formats** - TL;DR, bullet points, and action items
 - 🎨 **Customizable tone** - Neutral, friendly, or professional
 - 📏 **Adjustable length** - Short, medium, or detailed summaries
 - ⌨️ **Keyboard shortcut** - Alt+S to summarize quickly
@@ -79,6 +80,25 @@ This creates a `flash-tldr-extension.zip` file ready for the Chrome Web Store.
 - **TL;DR**: 2-3 sentence overview
 - **Key Points**: Up to 10 bullet points with main ideas
 - **Action Items**: Up to 10 actionable next steps (when applicable)
+
+### PDF Support
+
+FlashTL;DR now supports PDF documents opened in your browser:
+
+- **Automatic Detection**: Recognizes PDF files and switches to PDF extraction mode
+- **Text Extraction**: Extracts text from Chrome's built-in PDF viewer
+- **Multi-Strategy**: Uses multiple fallback methods for reliable extraction
+- **PDF-Specific UI**: Shows PDF icon and document metadata
+- **Same Features**: All summarization features work with PDFs
+- **Language Support**: Multilingual detection works with PDF content
+
+**Supported PDF Types**:
+- ✅ Text-based PDFs (most common)
+- ✅ Academic papers and research documents
+- ✅ Business reports and documentation
+- ✅ Multilingual PDF documents
+- ❌ Image-based/scanned PDFs (OCR not yet supported)
+- ❌ Password-protected PDFs
 
 ## Settings
 
@@ -205,7 +225,8 @@ MIT License - see LICENSE file for details
 
 ## Roadmap
 
-- [ ] PDF support
+- [x] **PDF support** - ✅ **COMPLETED** - Summarize PDF documents in browser
+- [ ] Enhanced PDF features (OCR for scanned PDFs, metadata extraction)
 - [ ] YouTube transcript summarization
 - [ ] Team collaboration features
 - [ ] Advanced summarization options
